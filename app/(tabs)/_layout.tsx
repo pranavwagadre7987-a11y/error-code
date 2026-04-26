@@ -1,8 +1,8 @@
-import { Tabs } from 'expo-router';
-import { TouchableOpacity, View, StyleSheet, Text } from 'react-native';
-import { router } from 'expo-router';
-import { useTheme } from '@/hooks/useTheme';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { useTheme } from '@/hooks/useTheme';
+import { router, Tabs } from 'expo-router';
+import React from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function TabLayout() {
   const { colors } = useTheme();

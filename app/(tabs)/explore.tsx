@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet, Text, TouchableOpacity, Dimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '@/hooks/useTheme';
-import { useBudget } from '@/hooks/useBudget';
 import { ThemedText } from '@/components/themed-text';
-
-const { width } = Dimensions.get('window');
+import { useBudget } from '@/hooks/useBudget';
+import { useTheme } from '@/hooks/useTheme';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function BudgetScreen() {
   const { colors, spacing, shadow } = useTheme();

@@ -10,7 +10,7 @@ export function HelloWave() {
         Animated.timing(r, { toValue: 0, duration: 400, useNativeDriver: true }),
       ]), { iterations: 3 }
     ).start();
-  }, []);
+  }, [r]);
   return (
     <Animated.Text style={{ fontSize: 28, transform: [{ rotate: r.interpolate({ inputRange: [0,1], outputRange: ['0deg','20deg'] }) }] }}>
       👋
