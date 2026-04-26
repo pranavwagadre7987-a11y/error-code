@@ -1,60 +1,33 @@
-import { StyleSheet, Text, type TextProps } from 'react-native';
+import React from 'react';
+import { Text, TextProps, StyleSheet } from 'react-native';
+import { useTheme } from '@/hooks/useTheme';
 
-import { useThemeColor } from '@/hooks/use-theme-color';
+type Variant = 'display' | 'title' | 'subtitle' | 'body' | 'caption' | 'label';
 
-export type ThemedTextProps = TextProps & {
-  lightColor?: string;
-  darkColor?: string;
-  type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link';
-};
+interface ThemedTextProps extends TextProps {
+  variant?: Variant;
+  color?: string;
+}
 
-export function ThemedText({
-  style,
-  lightColor,
-  darkColor,
-  type = 'default',
-  ...rest
-}: ThemedTextProps) {
-  const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
-
+export function ThemedText({ variant = 'body', color, style, ...props }: ThemedTextProps) {
+  const { colors } = useTheme();
   return (
     <Text
       style={[
-        { color },
-        type === 'default' ? styles.default : undefined,
-        type === 'title' ? styles.title : undefined,
-        type === 'defaultSemiBold' ? styles.defaultSemiBold : undefined,
-        type === 'subtitle' ? styles.subtitle : undefined,
-        type === 'link' ? styles.link : undefined,
+        styles[variant],
+        { color: color ?? colors.text.primary },
         style,
       ]}
-      {...rest}
+      {...props}
     />
   );
 }
 
 const styles = StyleSheet.create({
-  default: {
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  defaultSemiBold: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: '600',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    lineHeight: 32,
-  },
-  subtitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  link: {
-    lineHeight: 30,
-    fontSize: 16,
-    color: '#0a7ea4',
-  },
+  display:  { fontSize: 32, fontWeight: '700', letterSpacing: -1 },
+  title:    { fontSize: 22, fontWeight: '600', letterSpacing: -0.5 },
+  subtitle: { fontSize: 17, fontWeight: '500' },
+  body:     { fontSize: 15, fontWeight: '400', lineHeight: 22 },
+  caption:  { fontSize: 12, fontWeight: '400', lineHeight: 18 },
+  label:    { fontSize: 13, fontWeight: '600', letterSpacing: 0.3 },
 });
