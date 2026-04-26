@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { View, ScrollView, StyleSheet, TouchableOpacity, Text, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '@/hooks/useTheme';
-import { useBudget } from '@/hooks/useBudget';
 import { ThemedText } from '@/components/themed-text';
 import { CATEGORIES } from '@/constants';
+import { useBudget } from '@/hooks/useBudget';
+import { useTheme } from '@/hooks/useTheme';
+import { useState } from 'react';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
   const { colors, spacing, shadow } = useTheme();
