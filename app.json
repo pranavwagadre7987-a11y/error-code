@@ -13,7 +13,8 @@
       "backgroundColor": "#F8F7F4"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.name.app"
     },
     "android": {
       "adaptiveIcon": {
