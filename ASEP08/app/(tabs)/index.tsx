@@ -1,18 +1,45 @@
-import React from 'react';
-import {
-  View, ScrollView, StyleSheet, TouchableOpacity, Text
-} from 'react-native';
+import React, { useState } from 'react';
+import { View, ScrollView, StyleSheet, TouchableOpacity, Text, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/hooks/useTheme';
 import { useBudget } from '@/hooks/useBudget';
 import { ThemedText } from '@/components/themed-text';
+import { CATEGORIES } from '@/constants';
 
-export default function OverviewScreen() {
-  const { colors, spacing, radius, shadow } = useTheme();
-  const { totalBudget, totalSpent, totalSaved, spentPct, transactions } = useBudget();
+export default function HomeScreen() {
+  const { colors, spacing, shadow } = useTheme();
+  const { transactions, deleteTransaction, income, expenses, balance, profile, loaded } = useBudget();
+  const [filter, setFilter] = useState<'all' | 'income' | 'expense'>('all');
 
-  const formatINR = (n: number) =>
-    '₹' + Math.abs(n).toLocaleString('en-IN');
+  const fmt = (n: number) => profile.currency + Math.abs(n).toLocaleString('en-IN');
+
+  const getCat = (id: string) => CATEGORIES.find(c => c.id === id);
+
+  const filtered = transactions.filter(t =>
+    filter === 'all' ? true : filter === 'income' ? t.amount > 0 : t.amount < 0
+  );
+
+  const formatDate = (iso: string) => {
+    const d = new Date(iso);
+    const today = new Date();
+    const diff = Math.floor((today.getTime() - d.getTime()) / 86400000);
+    if (diff === 0) return 'Today';
+    if (diff === 1) return 'Yesterday';
+    return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+  };
+
+  const handleDelete = (id: string, title: string) => {
+    Alert.alert('Delete Transaction', `Delete "${title}"?`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: () => deleteTransaction(id) },
+    ]);
+  };
+
+  if (!loaded) return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' }}>
+      <ThemedText>Loading...</ThemedText>
+    </SafeAreaView>
+  );
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
@@ -21,85 +48,92 @@ export default function OverviewScreen() {
         {/* Header */}
         <View style={styles.row}>
           <View>
-            <ThemedText variant="caption" color={colors.text.muted}>April 2026</ThemedText>
-            <ThemedText variant="title">Good morning 👋</ThemedText>
-          </View>
-          <View style={[styles.avatar, { backgroundColor: colors.accentLight }]}>
-            <Text style={{ fontSize: 18 }}>👤</Text>
+            <ThemedText variant="caption" color={colors.text.muted}>
+              {new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}
+            </ThemedText>
+            <ThemedText variant="title">Hello, {profile.name} 👋</ThemedText>
           </View>
         </View>
 
-        {/* Balance Hero Card */}
-        <View style={[styles.heroCard, { backgroundColor: colors.accent }, shadow.card]}>
-          <ThemedText variant="caption" color="rgba(255,255,255,0.7)">Total Budget</ThemedText>
-          <ThemedText variant="display" color="#fff" style={{ marginVertical: 4 }}>
-            {formatINR(totalBudget)}
+        {/* Balance Hero */}
+        <View style={[styles.hero, { backgroundColor: colors.accent }, shadow.card]}>
+          <ThemedText variant="caption" color="rgba(255,255,255,0.7)">Total Balance</ThemedText>
+          <ThemedText variant="display" color="#fff" style={{ marginVertical: 6 }}>
+            {balance >= 0 ? '' : '-'}{fmt(balance)}
           </ThemedText>
-
           <View style={styles.heroRow}>
-            <View>
-              <ThemedText variant="caption" color="rgba(255,255,255,0.7)">Spent</ThemedText>
-              <ThemedText variant="subtitle" color="#fff">{formatINR(totalSpent)}</ThemedText>
+            <View style={styles.heroStat}>
+              <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }}>↑ Income</Text>
+              <ThemedText variant="subtitle" color="#fff">{fmt(income)}</ThemedText>
             </View>
-            <View style={styles.divider} />
-            <View>
-              <ThemedText variant="caption" color="rgba(255,255,255,0.7)">Remaining</ThemedText>
-              <ThemedText variant="subtitle" color="#fff">{formatINR(totalSaved)}</ThemedText>
+            <View style={[styles.heroDivider]} />
+            <View style={styles.heroStat}>
+              <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }}>↓ Expenses</Text>
+              <ThemedText variant="subtitle" color="#fff">{fmt(expenses)}</ThemedText>
             </View>
           </View>
-
-          {/* Progress bar */}
-          <View style={styles.progressBg}>
-            <View style={[styles.progressFill, { width: `${Math.min(spentPct, 100)}%` }]} />
-          </View>
-          <ThemedText variant="caption" color="rgba(255,255,255,0.7)" style={{ marginTop: 6 }}>
-            {spentPct}% of budget used
-          </ThemedText>
         </View>
 
-        {/* Quick Stats */}
-        <View style={styles.statsRow}>
-          {[
-            { label: 'Income',   value: '₹55,000', icon: '↑', bg: colors.accentLight,  textColor: colors.accent },
-            { label: 'Expenses', value: '₹36,500', icon: '↓', bg: colors.dangerLight,  textColor: colors.danger },
-          ].map(stat => (
-            <View key={stat.label} style={[styles.statCard, { backgroundColor: stat.bg }, shadow.soft]}>
-              <Text style={{ fontSize: 22 }}>{stat.icon}</Text>
-              <ThemedText variant="label" color={stat.textColor}>{stat.value}</ThemedText>
-              <ThemedText variant="caption" color={colors.text.muted}>{stat.label}</ThemedText>
-            </View>
+        {/* Filter Tabs */}
+        <View style={[styles.filterRow, { backgroundColor: colors.border }]}>
+          {(['all', 'income', 'expense'] as const).map(f => (
+            <TouchableOpacity
+              key={f}
+              style={[styles.filterBtn, filter === f && { backgroundColor: colors.surface, ...shadow.soft }]}
+              onPress={() => setFilter(f)}
+            >
+              <Text style={{
+                color: filter === f ? colors.accent : colors.text.muted,
+                fontWeight: '600', fontSize: 13, textTransform: 'capitalize',
+              }}>{f}</Text>
+            </TouchableOpacity>
           ))}
         </View>
 
-        {/* Recent Transactions */}
-        <ThemedText variant="subtitle" style={{ marginTop: spacing.lg, marginBottom: spacing.sm }}>
-          Recent Transactions
+        {/* Transactions List */}
+        <ThemedText variant="subtitle" style={{ marginBottom: spacing.sm }}>
+          Transactions ({filtered.length})
         </ThemedText>
 
-        <View style={[styles.card, { backgroundColor: colors.surface }, shadow.soft]}>
-          {transactions.map((tx, i) => (
-            <View key={tx.id}>
-              <View style={styles.txRow}>
-                <View style={[styles.txIcon, { backgroundColor: colors.background }]}>
-                  <Text style={{ fontSize: 20 }}>{tx.icon}</Text>
+        {filtered.length === 0 ? (
+          <View style={[styles.emptyBox, { backgroundColor: colors.surface }, shadow.soft]}>
+            <Text style={{ fontSize: 40 }}>📭</Text>
+            <ThemedText variant="body" color={colors.text.muted} style={{ marginTop: 8 }}>
+              No transactions yet
+            </ThemedText>
+          </View>
+        ) : (
+          <View style={[styles.card, { backgroundColor: colors.surface }, shadow.soft]}>
+            {filtered.map((tx, i) => {
+              const cat = getCat(tx.categoryId);
+              return (
+                <View key={tx.id}>
+                  <View style={styles.txRow}>
+                    <View style={[styles.txIcon, { backgroundColor: colors.background }]}>
+                      <Text style={{ fontSize: 20 }}>{cat?.icon ?? '📦'}</Text>
+                    </View>
+                    <View style={{ flex: 1, marginLeft: 12 }}>
+                      <ThemedText variant="label">{tx.title}</ThemedText>
+                      <ThemedText variant="caption" color={colors.text.muted}>
+                        {formatDate(tx.date)} · {cat?.name}
+                      </ThemedText>
+                    </View>
+                    <ThemedText variant="label" color={tx.amount > 0 ? colors.success : colors.text.primary}>
+                      {tx.amount > 0 ? '+' : '-'}{fmt(tx.amount)}
+                    </ThemedText>
+                    <TouchableOpacity
+                      onPress={() => handleDelete(tx.id, tx.title)}
+                      style={[styles.deleteBtn, { backgroundColor: colors.dangerLight }]}
+                    >
+                      <Text style={{ fontSize: 12 }}>🗑️</Text>
+                    </TouchableOpacity>
+                  </View>
+                  {i < filtered.length - 1 && <View style={[styles.sep, { backgroundColor: colors.border }]} />}
                 </View>
-                <View style={{ flex: 1, marginLeft: 12 }}>
-                  <ThemedText variant="label">{tx.title}</ThemedText>
-                  <ThemedText variant="caption" color={colors.text.muted}>{tx.date} · {tx.category}</ThemedText>
-                </View>
-                <ThemedText
-                  variant="label"
-                  color={tx.amount > 0 ? colors.success : colors.text.primary}
-                >
-                  {tx.amount > 0 ? '+' : ''}{formatINR(tx.amount)}
-                </ThemedText>
-              </View>
-              {i < transactions.length - 1 && (
-                <View style={[styles.separator, { backgroundColor: colors.border }]} />
-              )}
-            </View>
-          ))}
-        </View>
+              );
+            })}
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -107,16 +141,16 @@ export default function OverviewScreen() {
 
 const styles = StyleSheet.create({
   row:        { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  avatar:     { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center' },
-  heroCard:   { borderRadius: 20, padding: 24, marginBottom: 16 },
+  hero:       { borderRadius: 20, padding: 24, marginBottom: 16 },
   heroRow:    { flexDirection: 'row', marginTop: 16, gap: 24 },
-  divider:    { width: 1, backgroundColor: 'rgba(255,255,255,0.3)', marginHorizontal: 8 },
-  progressBg: { height: 6, backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 3, marginTop: 16 },
-  progressFill:{ height: 6, backgroundColor: '#fff', borderRadius: 3 },
-  statsRow:   { flexDirection: 'row', gap: 12 },
-  statCard:   { flex: 1, borderRadius: 14, padding: 16, gap: 4 },
-  card:       { borderRadius: 16, overflow: 'hidden' },
-  txRow:      { flexDirection: 'row', alignItems: 'center', padding: 14 },
+  heroStat:   { gap: 4 },
+  heroDivider:{ width: 1, backgroundColor: 'rgba(255,255,255,0.3)' },
+  filterRow:  { flexDirection: 'row', borderRadius: 10, padding: 4, marginBottom: 16 },
+  filterBtn:  { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 8 },
+  emptyBox:   { borderRadius: 16, padding: 40, alignItems: 'center' },
+  card:       { borderRadius: 16, overflow: 'hidden', marginBottom: 16 },
+  txRow:      { flexDirection: 'row', alignItems: 'center', padding: 14, gap: 8 },
   txIcon:     { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  separator:  { height: 1, marginHorizontal: 14 },
+  deleteBtn:  { width: 32, height: 32, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
+  sep:        { height: 1, marginHorizontal: 14 },
 });

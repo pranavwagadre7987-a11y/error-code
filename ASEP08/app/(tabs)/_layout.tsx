@@ -17,8 +17,8 @@ export default function TabLayout() {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
           borderTopWidth: 1,
-          height: 60,
-          paddingBottom: 8,
+          height: 64,
+          paddingBottom: 10,
         },
         tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
       }}
@@ -26,7 +26,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Overview',
+          title: 'Home',
           tabBarIcon: ({ color }) => <IconSymbol name="house.fill" size={22} color={color} />,
         }}
       />
@@ -37,23 +37,25 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol name="chart.bar.fill" size={22} color={color} />,
         }}
       />
-      {/* FAB-style center button */}
       <Tabs.Screen
         name="add"
         options={{
           title: '',
           tabBarIcon: () => (
             <View style={[styles.fab, { backgroundColor: colors.accent }]}>
-              <Text style={{ color: '#fff', fontSize: 26, lineHeight: 30 }}>+</Text>
+              <Text style={{ color: '#fff', fontSize: 28, lineHeight: 32 }}>+</Text>
             </View>
           ),
           tabBarButton: (props) => (
-            <TouchableOpacity
-              {...props}
-              onPress={() => router.push('/modal')}
-              style={styles.fabWrap}
-            />
+            <TouchableOpacity {...props} onPress={() => router.push('/modal')} style={styles.fabWrap} />
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color }) => <IconSymbol name="person.fill" size={22} color={color} />,
         }}
       />
     </Tabs>
@@ -63,13 +65,9 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   fabWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   fab: {
-    width: 52, height: 52, borderRadius: 26,
-    alignItems: 'center', justifyContent: 'center',
-    marginBottom: 16,
-    shadowColor: '#2D6A4F',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    elevation: 6,
+    width: 54, height: 54, borderRadius: 27,
+    alignItems: 'center', justifyContent: 'center', marginBottom: 18,
+    shadowColor: '#2D6A4F', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35, shadowRadius: 8, elevation: 6,
   },
 });

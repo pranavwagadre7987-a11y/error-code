@@ -4,23 +4,11 @@ import { useTheme } from '@/hooks/useTheme';
 
 type Variant = 'display' | 'title' | 'subtitle' | 'body' | 'caption' | 'label';
 
-interface ThemedTextProps extends TextProps {
-  variant?: Variant;
-  color?: string;
-}
+interface Props extends TextProps { variant?: Variant; color?: string; }
 
-export function ThemedText({ variant = 'body', color, style, ...props }: ThemedTextProps) {
+export function ThemedText({ variant = 'body', color, style, ...props }: Props) {
   const { colors } = useTheme();
-  return (
-    <Text
-      style={[
-        styles[variant],
-        { color: color ?? colors.text.primary },
-        style,
-      ]}
-      {...props}
-    />
-  );
+  return <Text style={[styles[variant], { color: color ?? colors.text.primary }, style]} {...props} />;
 }
 
 const styles = StyleSheet.create({

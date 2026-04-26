@@ -2,11 +2,9 @@ import React from 'react';
 import { View, ViewProps, StyleSheet } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 
-interface ThemedViewProps extends ViewProps {
-  card?: boolean;
-}
+interface Props extends ViewProps { card?: boolean; }
 
-export function ThemedView({ card, style, ...props }: ThemedViewProps) {
+export function ThemedView({ card, style, ...props }: Props) {
   const { colors, shadow } = useTheme();
   return (
     <View
@@ -22,8 +20,5 @@ export function ThemedView({ card, style, ...props }: ThemedViewProps) {
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: 16,
-    padding: 16,
-  },
+  card: { borderRadius: 16, padding: 16 },
 });

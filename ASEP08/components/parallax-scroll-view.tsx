@@ -1,43 +1,25 @@
 import React, { useRef } from 'react';
-import { Animated, ScrollView, StyleSheet, View, Dimensions } from 'react-native';
+import { Animated, View, StyleSheet } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 
-const { width } = Dimensions.get('window');
 const HEADER_HEIGHT = 200;
 
-interface ParallaxScrollViewProps {
+export function ParallaxScrollView({ headerImage, headerBackgroundColor, children }: {
   headerImage?: React.ReactNode;
   headerBackgroundColor?: string;
   children: React.ReactNode;
-}
-
-export function ParallaxScrollView({
-  headerImage,
-  headerBackgroundColor,
-  children,
-}: ParallaxScrollViewProps) {
+}) {
   const { colors } = useTheme();
   const scrollY = useRef(new Animated.Value(0)).current;
-
-  const translateY = scrollY.interpolate({
-    inputRange: [-HEADER_HEIGHT, 0, HEADER_HEIGHT],
-    outputRange: [-HEADER_HEIGHT / 2, 0, HEADER_HEIGHT * 0.75],
-  });
+  const translateY = scrollY.interpolate({ inputRange: [-HEADER_HEIGHT, 0, HEADER_HEIGHT], outputRange: [-HEADER_HEIGHT / 2, 0, HEADER_HEIGHT * 0.75] });
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <Animated.View
-        style={[
-          styles.header,
-          { backgroundColor: headerBackgroundColor ?? colors.accentLight, transform: [{ translateY }] },
-        ]}
-      >
+      <Animated.View style={[styles.header, { backgroundColor: headerBackgroundColor ?? colors.accentLight, transform: [{ translateY }] }]}>
         {headerImage}
       </Animated.View>
       <Animated.ScrollView
-        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
-          useNativeDriver: true,
-        })}
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
         scrollEventThrottle={16}
         contentContainerStyle={{ paddingTop: HEADER_HEIGHT }}
       >
@@ -48,14 +30,5 @@ export function ParallaxScrollView({
 }
 
 const styles = StyleSheet.create({
-  header: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: HEADER_HEIGHT,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
+  header: { position: 'absolute', top: 0, left: 0, right: 0, height: HEADER_HEIGHT, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
 });
