@@ -26,14 +26,14 @@ export const Radius = {
 };
 
 export const CATEGORIES = [
-  { id: '1', name: 'Housing',   icon: '🏠', color: '#2D6A4F', budget: 15000 },
-  { id: '2', name: 'Food',      icon: '🍱', color: '#E67E22', budget: 8000  },
-  { id: '3', name: 'Transport', icon: '🚌', color: '#2980B9', budget: 3000  },
-  { id: '4', name: 'Health',    icon: '💊', color: '#8E44AD', budget: 2000  },
-  { id: '5', name: 'Shopping',  icon: '🛍️', color: '#C0392B', budget: 5000  },
-  { id: '6', name: 'Savings',   icon: '💰', color: '#27AE60', budget: 10000 },
-  { id: '7', name: 'Income',    icon: '💼', color: '#2D6A4F', budget: 0     },
-  { id: '8', name: 'Other',     icon: '📦', color: '#7F8C8D', budget: 2000  },
+  { id: '1', name: 'Housing',   icon: '🏠', color: '#2D6A4F', budget: 15000, priority: 'high' },
+  { id: '2', name: 'Food',      icon: '🍱', color: '#E67E22', budget: 8000,  priority: 'high' },
+  { id: '3', name: 'Transport', icon: '🚌', color: '#2980B9', budget: 3000,  priority: 'medium' },
+  { id: '4', name: 'Health',    icon: '💊', color: '#8E44AD', budget: 2000,  priority: 'high' },
+  { id: '5', name: 'Shopping',  icon: '🛍️', color: '#C0392B', budget: 5000,  priority: 'low' },
+  { id: '6', name: 'Savings',   icon: '💰', color: '#27AE60', budget: 10000, priority: 'high' },
+  { id: '7', name: 'Income',    icon: '💼', color: '#2D6A4F', budget: 0,     priority: 'low' },
+  { id: '8', name: 'Other',     icon: '📦', color: '#7F8C8D', budget: 2000,  priority: 'low' },
 ];
 
 export const DEFAULT_TRANSACTIONS = [
@@ -51,4 +51,25 @@ export const DEFAULT_PROFILE = {
   monthlyIncome: 55000,
   currency: '₹',
   avatar: '👤',
+};
+
+export const PRIORITY_CONFIG = {
+  high: {
+    icon: '🚨',
+    color: Colors.danger,
+    bg: Colors.dangerLight,
+    label: 'High Priority',
+  },
+  medium: {
+    icon: '⚠️',
+    color: Colors.warning,
+    bg: Colors.warningLight,
+    label: 'Medium Priority',
+  },
+  low: {
+    icon: '💡',
+    color: Colors.accent,
+    bg: Colors.accentLight,
+    label: 'Low Priority',
+  },
 };

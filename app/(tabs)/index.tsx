@@ -1,5 +1,5 @@
 import { ThemedText } from '@/components/themed-text';
-import { CATEGORIES } from '@/constants';
+import { CATEGORIES, PRIORITY_CONFIG } from '@/constants';
 import { useBudget } from '@/hooks/useBudget';
 import { useTheme } from '@/hooks/useTheme';
 import { useState } from 'react';
@@ -8,7 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
   const { colors, spacing, shadow } = useTheme();
-  const { transactions, deleteTransaction, income, expenses, balance, profile, loaded } = useBudget();
+  const { transactions, deleteTransaction, income, expenses, balance, profile, loaded, priorityAlerts, budgetShifts } = useBudget();
   const [filter, setFilter] = useState<'all' | 'income' | 'expense'>('all');
 
   const fmt = (n: number) => profile.currency + Math.abs(n).toLocaleString('en-IN');
@@ -66,13 +66,60 @@ export default function HomeScreen() {
               <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }}>↑ Income</Text>
               <ThemedText variant="subtitle" color="#fff">{fmt(income)}</ThemedText>
             </View>
-            <View style={[styles.heroDivider]} />
+            <View style={styles.heroDivider} />
             <View style={styles.heroStat}>
               <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }}>↓ Expenses</Text>
               <ThemedText variant="subtitle" color="#fff">{fmt(expenses)}</ThemedText>
             </View>
           </View>
         </View>
+
+        {/* 🔴 Priority Alerts Banner */}
+        {priorityAlerts.length > 0 && (
+          <View style={{ marginBottom: 12 }}>
+            {priorityAlerts.map((alert, i) => (
+              <View key={i} style={[styles.alertCard, {
+                backgroundColor: colors.dangerLight,
+                borderLeftColor: colors.danger,
+              }]}>
+                <Text style={{ fontSize: 22 }}>{alert.icon}</Text>
+                <View style={{ flex: 1, marginLeft: 10 }}>
+                  <ThemedText variant="label" color={colors.danger}>
+                    {alert.category} Over Budget!
+                  </ThemedText>
+                  <ThemedText variant="caption" color={colors.text.secondary}>
+                    Overspent by {fmt(alert.overspent)}
+                  </ThemedText>
+                </View>
+                <View style={[styles.priorityTag, { backgroundColor: colors.danger }]}>
+                  <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700' }}>HIGH</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* 🔄 Budget Shift Notifications */}
+        {budgetShifts.length > 0 && (
+          <View style={{ marginBottom: 12 }}>
+            {budgetShifts.map((shift, i) => (
+              <View key={i} style={[styles.shiftCard, {
+                backgroundColor: colors.warningLight,
+                borderLeftColor: colors.warning,
+              }]}>
+                <Text style={{ fontSize: 20 }}>💸</Text>
+                <View style={{ flex: 1, marginLeft: 10 }}>
+                  <ThemedText variant="label" color={colors.warning}>
+                    Auto Budget Shift
+                  </ThemedText>
+                  <ThemedText variant="caption" color={colors.text.secondary}>
+                    {fmt(shift.amount)} moved: {shift.from} → {shift.to}
+                  </ThemedText>
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
 
         {/* Filter Tabs */}
         <View style={[styles.filterRow, { backgroundColor: colors.border }]}>
@@ -106,6 +153,7 @@ export default function HomeScreen() {
           <View style={[styles.card, { backgroundColor: colors.surface }, shadow.soft]}>
             {filtered.map((tx, i) => {
               const cat = getCat(tx.categoryId);
+              const priorityCfg = cat?.priority ? PRIORITY_CONFIG[cat.priority as keyof typeof PRIORITY_CONFIG] : null;
               return (
                 <View key={tx.id}>
                   <View style={styles.txRow}>
@@ -113,7 +161,13 @@ export default function HomeScreen() {
                       <Text style={{ fontSize: 20 }}>{cat?.icon ?? '📦'}</Text>
                     </View>
                     <View style={{ flex: 1, marginLeft: 12 }}>
-                      <ThemedText variant="label">{tx.title}</ThemedText>
+                      <View style={styles.txTitleRow}>
+                        <ThemedText variant="label">{tx.title}</ThemedText>
+                        {/* Priority dot on transaction */}
+                        {priorityCfg && (
+                          <Text style={{ fontSize: 10, marginLeft: 6 }}>{priorityCfg.icon}</Text>
+                        )}
+                      </View>
                       <ThemedText variant="caption" color={colors.text.muted}>
                         {formatDate(tx.date)} · {cat?.name}
                       </ThemedText>
@@ -140,17 +194,21 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  row:        { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  hero:       { borderRadius: 20, padding: 24, marginBottom: 16 },
-  heroRow:    { flexDirection: 'row', marginTop: 16, gap: 24 },
-  heroStat:   { gap: 4 },
-  heroDivider:{ width: 1, backgroundColor: 'rgba(255,255,255,0.3)' },
-  filterRow:  { flexDirection: 'row', borderRadius: 10, padding: 4, marginBottom: 16 },
-  filterBtn:  { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 8 },
-  emptyBox:   { borderRadius: 16, padding: 40, alignItems: 'center' },
-  card:       { borderRadius: 16, overflow: 'hidden', marginBottom: 16 },
-  txRow:      { flexDirection: 'row', alignItems: 'center', padding: 14, gap: 8 },
-  txIcon:     { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  deleteBtn:  { width: 32, height: 32, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
-  sep:        { height: 1, marginHorizontal: 14 },
+  row:         { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+  hero:        { borderRadius: 20, padding: 24, marginBottom: 16 },
+  heroRow:     { flexDirection: 'row', marginTop: 16, gap: 24 },
+  heroStat:    { gap: 4 },
+  heroDivider: { width: 1, backgroundColor: 'rgba(255,255,255,0.3)' },
+  filterRow:   { flexDirection: 'row', borderRadius: 10, padding: 4, marginBottom: 16 },
+  filterBtn:   { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 8 },
+  emptyBox:    { borderRadius: 16, padding: 40, alignItems: 'center' },
+  card:        { borderRadius: 16, overflow: 'hidden', marginBottom: 16 },
+  txRow:       { flexDirection: 'row', alignItems: 'center', padding: 14, gap: 8 },
+  txTitleRow:  { flexDirection: 'row', alignItems: 'center' },
+  txIcon:      { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  deleteBtn:   { width: 32, height: 32, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
+  sep:         { height: 1, marginHorizontal: 14 },
+  alertCard:   { flexDirection: 'row', borderRadius: 12, padding: 14, marginBottom: 8, alignItems: 'center', borderLeftWidth: 4 },
+  shiftCard:   { flexDirection: 'row', borderRadius: 12, padding: 14, marginBottom: 8, alignItems: 'center', borderLeftWidth: 4 },
+  priorityTag: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 20 },
 });

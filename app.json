@@ -1,44 +1,44 @@
-{
-  "expo": {
-    "name": "ASEP08",
-    "slug": "asep08",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "asep08",
-    "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#F8F7F4"
-    },
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.name.app"
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+  {
+    "expo": {
+      "name": "ASEP08",
+      "slug": "asep08",
+      "version": "1.0.0",
+      "orientation": "portrait",
+      "icon": "./assets/images/icon.png",
+      "scheme": "asep08",
+      "userInterfaceStyle": "light",
+      "splash": {
+        "image": "./assets/images/splash.png",
+        "resizeMode": "contain",
         "backgroundColor": "#F8F7F4"
       },
-      "package": "com.name.app"
-    },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
-    },
-    "plugins": [
-      "expo-router"
-    ],
-    "experiments": {
-      "typedRoutes": true
-    },
-    "extra": {
-      "router": {},
-      "eas": {
-        "projectId": "f98fa5d9-6299-40f7-945f-8dd75ad11afc"
+      "ios": {
+        "supportsTablet": true,
+        "bundleIdentifier": "com.name.app"
+      },
+      "android": {
+        "adaptiveIcon": {
+          "foregroundImage": "./assets/images/adaptive-icon.png",
+          "backgroundColor": "#F8F7F4"
+        },
+        "package": "com.name.app"
+      },
+      "web": {
+        "bundler": "metro",
+        "output": "static",
+        "favicon": "./assets/images/favicon.png"
+      },
+      "plugins": [
+        "expo-router"
+      ],
+      "experiments": {
+        "typedRoutes": true
+      },
+      "extra": {
+        "router": {},
+        "eas": {
+          "projectId": "f98fa5d9-6299-40f7-945f-8dd75ad11afc"
+        }
       }
     }
   }
-}

@@ -46,9 +46,19 @@ export default function TabLayout() {
               <Text style={{ color: '#fff', fontSize: 28, lineHeight: 32 }}>+</Text>
             </View>
           ),
-          tabBarButton: (props) => (
-            <TouchableOpacity {...props} onPress={() => router.push('/modal')} style={styles.fabWrap} />
-          ),
+          tabBarButton: (props) => {
+            const { children, style, ...buttonProps } = props as React.ComponentProps<typeof TouchableOpacity>;
+            return (
+              <TouchableOpacity
+                {...buttonProps}
+                onPress={() => router.push('/modal')}
+                style={[styles.fabWrap, style]}
+                accessibilityRole="button"
+              >
+                {children}
+              </TouchableOpacity>
+            );
+          },
         }}
       />
       <Tabs.Screen
