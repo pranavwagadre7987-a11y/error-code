@@ -1,15 +1,25 @@
+import { InsightsModal } from '@/components/InsightsModal';
 import { ThemedText } from '@/components/themed-text';
 import { CATEGORIES, PRIORITY_CONFIG } from '@/constants';
 import { useBudget } from '@/hooks/useBudget';
+import { useStatementImport } from '@/hooks/useStatementImport';
 import { useTheme } from '@/hooks/useTheme';
 import { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
   const { colors, spacing, shadow } = useTheme();
-  const { transactions, deleteTransaction, income, expenses, balance, profile, loaded, priorityAlerts, budgetShifts } = useBudget();
+  const { transactions, deleteTransaction, income, expenses, balance, profile, loaded, priorityAlerts, budgetShifts, addTransaction } = useBudget();
   const [filter, setFilter] = useState<'all' | 'income' | 'expense'>('all');
+  
+  const statementImport = useStatementImport(
+    () => {
+      // Refresh after import
+      setFilter('all');
+    },
+    addTransaction
+  );
 
   const fmt = (n: number) => profile.currency + Math.abs(n).toLocaleString('en-IN');
 
@@ -137,6 +147,22 @@ export default function HomeScreen() {
           ))}
         </View>
 
+        {/* Import Statement Button */}
+        <TouchableOpacity
+          style={[
+            styles.importButton,
+            { backgroundColor: colors.accent, marginBottom: spacing.md },
+            shadow.soft,
+          ]}
+          onPress={statementImport.pickPDFFile}
+          disabled={statementImport.isLoading}
+        >
+          <Text style={{ fontSize: 16, marginRight: 8 }}>📄</Text>
+          <Text style={{ color: '#fff', fontWeight: '600', fontSize: 13 }}>
+            {statementImport.isLoading ? 'Reading PDF...' : 'Import Statement'}
+          </Text>
+        </TouchableOpacity>
+
         {/* Transactions List */}
         <ThemedText variant="subtitle" style={{ marginBottom: spacing.sm }}>
           Transactions ({filtered.length})
@@ -189,6 +215,21 @@ export default function HomeScreen() {
           </View>
         )}
       </ScrollView>
+
+      {/* Insights Modal */}
+      <Modal
+        visible={statementImport.transactions.length > 0}
+        transparent
+        animationType="slide"
+        onRequestClose={() => statementImport.clearState()}
+      >
+        <InsightsModal
+          transactions={statementImport.transactions}
+          onClose={() => statementImport.clearState()}
+          onImport={statementImport.importTransactions}
+          isImporting={statementImport.isImporting}
+        />
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -201,6 +242,7 @@ const styles = StyleSheet.create({
   heroDivider: { width: 1, backgroundColor: 'rgba(255,255,255,0.3)' },
   filterRow:   { flexDirection: 'row', borderRadius: 10, padding: 4, marginBottom: 16 },
   filterBtn:   { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 8 },
+  importButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 12, paddingHorizontal: 16, borderRadius: 10 },
   emptyBox:    { borderRadius: 16, padding: 40, alignItems: 'center' },
   card:        { borderRadius: 16, overflow: 'hidden', marginBottom: 16 },
   txRow:       { flexDirection: 'row', alignItems: 'center', padding: 14, gap: 8 },

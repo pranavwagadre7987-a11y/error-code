@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
   fab: {
     width: 54, height: 54, borderRadius: 27,
     alignItems: 'center', justifyContent: 'center', marginBottom: 18,
-    shadowColor: '#2D6A4F', shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35, shadowRadius: 8, elevation: 6,
+    boxShadow: '0px 4px 8px rgba(0,0,0,0.35)',
+    elevation: 6,
   },
 });

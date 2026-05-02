@@ -1,4 +1,4 @@
-import { Colors, Spacing, Radius } from './index';
+import { Colors, Radius, Spacing } from './index';
 
 export const Theme = {
   colors: Colors,
@@ -6,17 +6,11 @@ export const Theme = {
   radius: Radius,
   shadow: {
     soft: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.06,
-      shadowRadius: 8,
+      boxShadow: '0px 2px 8px rgba(0,0,0,0.06)',
       elevation: 2,
     },
     card: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.08,
-      shadowRadius: 16,
+      boxShadow: '0px 4px 16px rgba(0,0,0,0.08)',
       elevation: 4,
     },
   },
