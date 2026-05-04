@@ -18,7 +18,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#F8F7F4"
       },
       "package": "com.name.app"
@@ -37,7 +37,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "f98fa5d9-6299-40f7-945f-8dd75ad11afc"
+        "projectId": "8c2f7e3f-0386-44df-9b19-29872563e6d2"
       }
     }
   }
